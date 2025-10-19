@@ -1,16 +1,30 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import Login from './components/Login';
+import Vault from './components/Vault';
+
+function AppContent() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-t-4 border-yellow-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading Secure Vault...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return user ? <Vault /> : <Login />;
+}
 
 function App() {
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-900">
-      <h1 className="text-4xl font-bold text-pink-500">
-        Tailwind + Vite is Working 
-      </h1>
-    </div>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
-export default App
+export default App;
