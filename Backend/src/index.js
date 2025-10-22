@@ -38,3 +38,8 @@ app.listen(PORT, () => {
 // registered the routes here
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
+
+
+
+const vaultRoutes = require('./routes/vault');
+app.use('/api/vault', vaultRoutes);

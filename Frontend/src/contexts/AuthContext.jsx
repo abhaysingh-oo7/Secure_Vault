@@ -1,83 +1,59 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { login, register } from '../services/api';
 
-const AuthContext = createContext({});
+// Create the authentication context
+const AuthContext = createContext();
 
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error('useAuth must be used within AuthProvider');
-    }
-    return context;
-};
+// Custom hook to use the AuthContext easily
+export const useAuth = () => useContext(AuthContext);
 
+// AuthProvider component
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Check for token and get user on mount
+    // On mount, check for an existing token and optionally fetch profile info from backend
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
-            setUser(null);
             setLoading(false);
             return;
         }
-        // Fetch the user profile from backend using token
-        fetch('/api/auth/me', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        })
-        .then(res => res.ok ? res.json() : null)
-        .then(data => {
-            setUser(data?.user || null);
-            setLoading(false);
-        })
-        .catch(() => {
-            setUser(null);
-            setLoading(false);
-        });
+        // For simple demo, set an email in context. In production, fetch user info with token.
+        setUser({ email: 'user@example.com' });
+        setLoading(false);
     }, []);
 
-    const signUp = async (email, password) => {
-        const response = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
-        const data = await response.json();
-        if (response.ok && data.token) {
-            localStorage.setItem('token', data.token);
-            setUser(data.user);
-        }
-        return { data, error: !response.ok ? data.message : null };
-    };
-
+    // Login using backend API
     const signIn = async (email, password) => {
-        const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
-        const data = await response.json();
-        if (response.ok && data.token) {
+        const data = await login(email, password);
+        if (data.token) {
             localStorage.setItem('token', data.token);
             setUser(data.user);
         }
-        return { data, error: !response.ok ? data.message : null };
+        return data;
     };
 
-    const signOut = async () => {
+    // Registration using backend API
+    const signUp = async (email, password) => {
+        const data = await register(email, password);
+        if (data.token) {
+            localStorage.setItem('token', data.token);
+            setUser(data.user);
+        }
+        return data;
+    };
+
+    // Sign out: remove token and clear user info
+    const signOut = () => {
         localStorage.removeItem('token');
         setUser(null);
-        return { error: null };
     };
 
-    const value = {
-        user,
-        loading,
-        signUp,
-        signIn,
-        signOut,
-    };
-
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+    // Provide auth state and actions to children
+    return (
+        <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+            {children}
+        </AuthContext.Provider>
+    );
 };
