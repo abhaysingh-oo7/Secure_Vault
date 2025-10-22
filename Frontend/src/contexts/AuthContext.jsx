@@ -1,58 +1,71 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { login, register } from '../services/api';
+import axios from 'axios';
+import { deriveKey, generateSalt } from '../utils/cryptoUtils';
 
-// Create the authentication context
 const AuthContext = createContext();
-
-// Custom hook to use the AuthContext easily
 export const useAuth = () => useContext(AuthContext);
 
-// AuthProvider component
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [encKey, setEncKey] = useState(null); // AES-GCM key
     const [loading, setLoading] = useState(true);
 
-    // On mount, check for an existing token and optionally fetch profile info from backend
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
             setLoading(false);
             return;
         }
-        // For simple demo, set an email in context. In production, fetch user info with token.
-        setUser({ email: 'user@example.com' });
+        // Optionally fetch user info from backend
+        setUser({ email: localStorage.getItem('email') });
         setLoading(false);
     }, []);
 
-    // Login using backend API
-    const signIn = async (email, password) => {
-        const data = await login(email, password);
-        if (data.token) {
-            localStorage.setItem('token', data.token);
-            setUser(data.user);
-        }
-        return data;
-    };
-
-    // Registration using backend API
+    // Registration
     const signUp = async (email, password) => {
-        const data = await register(email, password);
-        if (data.token) {
-            localStorage.setItem('token', data.token);
-            setUser(data.user);
+        const salt = generateSalt(); // new salt for this user
+        const res = await axios.post('http://localhost:5000/api/auth/register', {
+            email,
+            password,
+            kdfSalt: salt,
+        });
+        if (res.data.token) {
+            localStorage.setItem('token', res.data.token);
+            localStorage.setItem('email', email);
+            setUser({ email });
+            const key = await deriveKey(password, salt);
+            setEncKey(key);
         }
-        return data;
+        return res.data;
     };
 
-    // Sign out: remove token and clear user info
+    // Login
+    const signIn = async (email, password) => {
+        try {
+            const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+            if (res.data.token) {
+                localStorage.setItem('token', res.data.token);
+                localStorage.setItem('email', email);
+                setUser({ email });
+                const key = await deriveKey(password, res.data.kdfSalt);
+                setEncKey(key);
+            }
+            return res.data;
+        } catch (err) {
+            // Handle network / server errors
+            throw new Error(err.response?.data?.message || 'Login failed');
+        }
+    };
+
     const signOut = () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('email');
         setUser(null);
+        setEncKey(null);
     };
 
-    // Provide auth state and actions to children
     return (
-        <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+        <AuthContext.Provider value={{ user, encKey, loading, signIn, signUp, signOut }}>
             {children}
         </AuthContext.Provider>
     );

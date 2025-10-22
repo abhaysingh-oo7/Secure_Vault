@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const VaultItem = require('../models/VaultItem');
 const router = express.Router();
 
-// Inline JWT middleware
+// JWT middleware
 function verifyAuth(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -13,7 +13,7 @@ function verifyAuth(req, res, next) {
     const token = authHeader.split(' ')[1];
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded; // Attach userId for next handlers
+        req.userId = decoded.userId; // attach userId for later use
         next();
     } catch (error) {
         console.error('JWT Error:', error.message);
@@ -21,13 +21,13 @@ function verifyAuth(req, res, next) {
     }
 }
 
-// GET all vault items for a user
+// GET all vault items for the user
 router.get('/', verifyAuth, async (req, res) => {
     try {
-        const items = await VaultItem.find({ userId: req.user.userId });
+        const items = await VaultItem.find({ userId: req.userId }).sort({ createdAt: -1 });
         res.json(items);
     } catch (err) {
-        console.error('GET error:', err);
+        console.error('GET vault error:', err);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -36,33 +36,39 @@ router.get('/', verifyAuth, async (req, res) => {
 router.post('/', verifyAuth, async (req, res) => {
     try {
         const { title, username, password, notes } = req.body;
+
+        if (!title || !username || !password) {
+            return res.status(400).json({ message: 'Title, username, and password are required' });
+        }
+
         const newItem = await VaultItem.create({
-            userId: req.user.userId,
+            userId: req.userId,
             title,
             username,
             password,
-            notes,
+            notes: notes || '',
         });
+
         res.status(201).json(newItem);
     } catch (err) {
-        console.error('POST error:', err);
+        console.error('POST vault error:', err);
         res.status(500).json({ message: 'Server error' });
     }
 });
 
-// DELETE vault item by ID
+// DELETE a vault item by ID
 router.delete('/:id', verifyAuth, async (req, res) => {
     try {
         const deleted = await VaultItem.findOneAndDelete({
             _id: req.params.id,
-            userId: req.user.userId,
+            userId: req.userId,
         });
-        if (!deleted) {
-            return res.status(404).json({ message: 'Item not found' });
-        }
+
+        if (!deleted) return res.status(404).json({ message: 'Item not found' });
+
         res.json({ message: 'Deleted successfully' });
     } catch (err) {
-        console.error('DELETE error:', err);
+        console.error('DELETE vault error:', err);
         res.status(500).json({ message: 'Server error' });
     }
 });
