@@ -15,13 +15,31 @@ All passwords are encrypted **client-side** using **AES-GCM** before they ever t
 
 ---
 
-## 🖼️ Screenshots
 
-> 📸 Add your UI screenshots below to make your README visually appealing.
+Vault
+# Vault Project Screenshots
 
-| Login Page | Vault Dashboard | Add Item Modal |
-|-------------|----------------|----------------|
-| ![Login](./screenshots/login.png) | ![Vault](./screenshots/vault.png) | ![Add Item](./screenshots/add-item.png) |
+## 1. Vault (Home Page)
+<p align="center">
+  <img src="https://github.com/abhaysingh-oo7/Secure_Vault/blob/main/Frontend/src/assets/home%20page.png?raw=true" width="400" style="border-radius:10px; box-shadow: 2px 2px 12px rgba(0,0,0,0.3);">
+</p>
+<p align="center"><em>The landing page of the Vault app, showing an overview of available features.</em></p>
+
+---
+
+## 2. Login Page
+<p align="center">
+  <img src="https://github.com/abhaysingh-oo7/Secure_Vault/blob/main/Frontend/src/assets/loginpage.png?raw=true" width="400" style="border-radius:10px; box-shadow: 2px 2px 12px rgba(0,0,0,0.3);">
+</p>
+<p align="center"><em>Users can securely log in to access their personal vault items.</em></p>
+
+---
+
+## 3. Add Item Page
+<p align="center">
+  <img src="https://github.com/abhaysingh-oo7/Secure_Vault/blob/main/Frontend/src/assets/items%20page.png?raw=true" width="400" style="border-radius:10px; box-shadow: 2px 2px 12px rgba(0,0,0,0.3);">
+</p>
+<p align="center"><em>Interface for adding new items to the vault with details and encryption.</em></p>
 
 ---
 
