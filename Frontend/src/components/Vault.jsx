@@ -21,10 +21,21 @@ export default function Vault() {
         setError('');
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/vault', {
+            const res = await fetch('https://secure-vault-8ide-git-main-abhays-projects-c3f21bf4.vercel.app/vault', {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            if (!res.ok) throw new Error('Failed to fetch vault items');
+
+            const contentType = res.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                const text = await res.text();
+                throw new Error(`Expected JSON but got: ${text.slice(0, 200)}...`);
+            }
+
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.message || 'Failed to fetch vault items');
+            }
+
             const data = await res.json();
             setVaultItems(data || []);
         } catch (err) {
@@ -36,18 +47,37 @@ export default function Vault() {
 
     const addVaultItem = async (e) => {
         e.preventDefault();
+        // **BUG FIX: Save the unencrypted password locally before sending for encryption**
+        const unencryptedPassword = newItem.password;
+
         setError('');
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/vault', {
+            const res = await fetch('https://secure-vault-8ide-git-main-abhays-projects-c3f21bf4.vercel.app/vault', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify(newItem),
             });
-            if (!res.ok) throw new Error('Failed to add item');
+
+            const contentType = res.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                const text = await res.text();
+                throw new Error(`Expected JSON but got: ${text.slice(0, 200)}...`);
+            }
+
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.message || 'Failed to add item');
+            }
 
             const createdItem = await res.json();
-            setVaultItems([createdItem, ...vaultItems]); // Add to top
+
+            // Store the item received from the server, but OVERWRITE its password 
+            // field with the original unencrypted one from the form submission (newItem.password).
+            // This allows the frontend to toggle its visibility immediately without a new fetch.
+            const itemWithLocalPassword = { ...createdItem, password: unencryptedPassword };
+
+            setVaultItems([itemWithLocalPassword, ...vaultItems]);
             setNewItem({ title: '', username: '', password: '', notes: '' });
             setShowAddModal(false);
         } catch (err) {
@@ -59,12 +89,28 @@ export default function Vault() {
         setError('');
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:5000/api/vault/${id}`, {
+            const res = await fetch(`https://secure-vault-8ide-git-main-abhays-projects-c3f21bf4.vercel.app/vault/${id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` },
             });
-            if (!res.ok) throw new Error('Failed to delete item');
+
+            if (!res.ok) {
+                const contentType = res.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const data = await res.json();
+                    throw new Error(data.message || 'Failed to delete item');
+                } else {
+                    const text = await res.text();
+                    throw new Error(`Failed to delete item: ${text.slice(0, 200)}...`);
+                }
+            }
+
             setVaultItems(vaultItems.filter((item) => item._id !== id));
+            setVisibleSecrets((prev) => {
+                const copy = { ...prev };
+                delete copy[id];
+                return copy;
+            });
         } catch (err) {
             setError(err.message);
         }
@@ -195,42 +241,42 @@ export default function Vault() {
                         </div>
                     )}
                 </main>
-            </div>
 
-            {/* Add Item Modal */}
-            {showAddModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-                    <div className="bg-black/90 backdrop-blur-xl border border-yellow-900/30 rounded-2xl p-8 max-w-md w-full transform transition-all duration-300 scale-100 animate-slideUp">
-                        <h3 className="text-2xl font-bold text-white mb-6">Add Secure Item</h3>
-                        <form onSubmit={addVaultItem} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-2">Title</label>
-                                <input type="text" value={newItem.title} onChange={(e) => setNewItem({ ...newItem, title: e.target.value })} required className="w-full px-4 py-2 bg-gray-900/50 border border-yellow-900/30 rounded-lg text-white focus:outline-none focus:border-yellow-600 focus:ring-2 focus:ring-yellow-600/20 transition-all duration-300" />
-                            </div>
+                {/* Add Item Modal */}
+                {showAddModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+                        <div className="bg-black/90 backdrop-blur-xl border border-yellow-900/30 rounded-2xl p-8 max-w-md w-full transform transition-all duration-300 scale-100 animate-slideUp">
+                            <h3 className="text-2xl font-bold text-white mb-6">Add Secure Item</h3>
+                            <form onSubmit={addVaultItem} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-2">Title</label>
+                                    <input type="text" value={newItem.title} onChange={(e) => setNewItem({ ...newItem, title: e.target.value })} required className="w-full px-4 py-2 bg-gray-900/50 border border-yellow-900/30 rounded-lg text-white focus:outline-none focus:border-yellow-600 focus:ring-2 focus:ring-yellow-600/20 transition-all duration-300" />
+                                </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-2">Username</label>
-                                <input type="text" value={newItem.username} onChange={(e) => setNewItem({ ...newItem, username: e.target.value })} required className="w-full px-4 py-2 bg-gray-900/50 border border-yellow-900/30 rounded-lg text-white focus:outline-none focus:border-yellow-600 focus:ring-2 focus:ring-yellow-600/20 transition-all duration-300" />
-                            </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-2">Username</label>
+                                    <input type="text" value={newItem.username} onChange={(e) => setNewItem({ ...newItem, username: e.target.value })} required className="w-full px-4 py-2 bg-gray-900/50 border border-yellow-900/30 rounded-lg text-white focus:outline-none focus:border-yellow-600 focus:ring-2 focus:ring-yellow-600/20 transition-all duration-300" />
+                                </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-2">Password</label>
-                                <input type="password" value={newItem.password} onChange={(e) => setNewItem({ ...newItem, password: e.target.value })} required className="w-full px-4 py-2 bg-gray-900/50 border border-yellow-900/30 rounded-lg text-white focus:outline-none focus:border-yellow-600 focus:ring-2 focus:ring-yellow-600/20 transition-all duration-300" />
-                            </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-2">Password</label>
+                                    <input type="password" value={newItem.password} onChange={(e) => setNewItem({ ...newItem, password: e.target.value })} required className="w-full px-4 py-2 bg-gray-900/50 border border-yellow-900/30 rounded-lg text-white focus:outline-none focus:border-yellow-600 focus:ring-2 focus:ring-yellow-600/20 transition-all duration-300" />
+                                </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-2">Notes (optional)</label>
-                                <textarea value={newItem.notes} onChange={(e) => setNewItem({ ...newItem, notes: e.target.value })} rows={3} className="w-full px-4 py-2 bg-gray-900/50 border border-yellow-900/30 rounded-lg text-white focus:outline-none focus:border-yellow-600 focus:ring-2 focus:ring-yellow-600/20 transition-all duration-300" />
-                            </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-2">Notes (optional)</label>
+                                    <textarea value={newItem.notes} onChange={(e) => setNewItem({ ...newItem, notes: e.target.value })} rows={3} className="w-full px-4 py-2 bg-gray-900/50 border border-yellow-900/30 rounded-lg text-white focus:outline-none focus:border-yellow-600 focus:ring-2 focus:ring-yellow-600/20 transition-all duration-300" />
+                                </div>
 
-                            <div className="flex space-x-3 pt-4">
-                                <button type="button" onClick={() => setShowAddModal(false)} className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-all duration-300">Cancel</button>
-                                <button type="submit" className="flex-1 px-4 py-2 bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-500 hover:to-yellow-600 text-white font-bold rounded-lg shadow-lg shadow-yellow-900/50 transition-all duration-300">Add Item</button>
-                            </div>
-                        </form>
+                                <div className="flex space-x-3 pt-4">
+                                    <button type="button" onClick={() => setShowAddModal(false)} className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-all duration-300">Cancel</button>
+                                    <button type="submit" className="flex-1 px-4 py-2 bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-500 hover:to-yellow-600 text-white font-bold rounded-lg shadow-lg shadow-yellow-900/50 transition-all duration-300">Add Item</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }
