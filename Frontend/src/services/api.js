@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://secure-vault-2zt4.onrender.com';
 
 export async function login(email, password) {
     const response = await fetch(`${API_BASE}/auth/login`, {
