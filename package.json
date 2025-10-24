@@ -1,9 +1,0 @@
-// package.json (in the repository root)
-{
-    "name": "full-stack-deployment-root",
-    "version": "1.0.0",
-    "scripts": {
-        "install": "npm install --prefix Frontend && npm install --prefix Backend",
-        "build": "npm run build --prefix Frontend"
-    }
-}
