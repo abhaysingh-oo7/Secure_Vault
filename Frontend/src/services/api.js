@@ -1,20 +1,19 @@
-const API_BASE = 'https://secure-vault-8ide-git-main-abhays-projects-c3f21bf4.vercel.app';
+const API_BASE = 'http://localhost:5000/api/auth'; // local backend
 
 export async function login(email, password) {
-    const response = await fetch(`${API_BASE}/auth/login`, {
+    const res = await fetch(`${API_BASE}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
     });
-    return response.json();
+    return res.json();
 }
 
-export async function register(email, password) {
-    const response = await fetch(`${API_BASE}/auth/register`, {
+export async function register(email, password, kdfSalt) {
+    const res = await fetch(`${API_BASE}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, kdfSalt }),
     });
-    return response.json();
+    return res.json();
 }
-
