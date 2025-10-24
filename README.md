@@ -1,5 +1,6 @@
-# 🛡️ Secure Vault
+<h1 align="center">🛡️ Secure Vault 
 
+  
 ![Static Badge](https://img.shields.io/badge/Frontend-React-blue?style=for-the-badge&logo=react)
 ![Static Badge](https://img.shields.io/badge/Backend-Node.js-green?style=for-the-badge&logo=node.js)
 ![Static Badge](https://img.shields.io/badge/Database-MongoDB-darkgreen?style=for-the-badge&logo=mongodb)
@@ -16,7 +17,6 @@ All passwords are encrypted **client-side** using **AES-GCM** before they ever t
 ---
 
 
-Vault
 # Vault Project Screenshots
 
 ## 1. Vault (Home Page)
@@ -84,7 +84,7 @@ Vault
 
 ### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/yourusername/secure-vault.git
+git clone https://github.com/abhaysingh-oo7/Secure_Vault.git
 cd secure-vault
 ```
 
@@ -131,18 +131,10 @@ flowchart LR
     G --> H[Decrypt Ciphertext → Plain Password in Memory]
 ```
 
-## 🕒 Auto Logout on Inactivity
-
-- ⏳ The app includes an **automatic logout mechanism** that monitors user activity such as **mouse movement** and **keyboard input**.  
-- 💤 If the user remains inactive beyond a specified threshold (**default: 10 minutes**), their session is automatically terminated.  
-- 🔐 Upon timeout:
-  - The user's **JWT token is cleared** from local storage.
-  - The user is **securely redirected** to the login page.
-  - All in-memory sensitive data (like decrypted passwords) is cleared.
 
 
 
-## 🙏 Thank You
+<h1 align="center">🙏 Thank You
 
 
 
