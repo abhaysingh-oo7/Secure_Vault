@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
     // Registration
     const signUp = async (email, password) => {
         const salt = generateSalt(); // new salt for this user
-        const res = await axios.post('https://secure-vault-2zt4.onrender.com/auth/register', {
+        const res = await axios.post('https://secure-vault-8ide-git-main-abhays-projects-c3f21bf4.vercel.app/auth/register', {
             email,
             password,
             kdfSalt: salt,
@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
     // Login
     const signIn = async (email, password) => {
         try {
-            const res = await axios.post('https://secure-vault-2zt4.onrender.com/auth/login', { email, password });
+            const res = await axios.post('https://secure-vault-8ide-git-main-abhays-projects-c3f21bf4.vercel.app/auth/login', { email, password });
             if (res.data.token) {
                 localStorage.setItem('token', res.data.token);
                 localStorage.setItem('email', email);

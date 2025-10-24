@@ -1,4 +1,4 @@
-const API_BASE = 'https://secure-vault-2zt4.onrender.com';
+const API_BASE = 'https://secure-vault-8ide-git-main-abhays-projects-c3f21bf4.vercel.app';
 
 export async function login(email, password) {
     const response = await fetch(`${API_BASE}/auth/login`, {

@@ -21,7 +21,7 @@ export default function Vault() {
         setError('');
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('https://secure-vault-2zt4.onrender.com/vault', {
+            const res = await fetch('https://secure-vault-8ide-git-main-abhays-projects-c3f21bf4.vercel.app/vault', {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -53,7 +53,7 @@ export default function Vault() {
         setError('');
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('https://secure-vault-2zt4.onrender.com/vault', {
+            const res = await fetch('https://secure-vault-8ide-git-main-abhays-projects-c3f21bf4.vercel.app/vault', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify(newItem),
@@ -89,7 +89,7 @@ export default function Vault() {
         setError('');
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`https://secure-vault-2zt4.onrender.com/vault/${id}`, {
+            const res = await fetch(`https://secure-vault-8ide-git-main-abhays-projects-c3f21bf4.vercel.app/vault/${id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` },
             });
