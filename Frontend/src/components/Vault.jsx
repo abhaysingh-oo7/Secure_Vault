@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Shield, LogOut, Plus, Lock, Eye, EyeOff, Trash2, FileText, Key } from 'lucide-react';
+const API_BASE = import.meta.env.VITE_API_URL;
 
 export default function Vault() {
     const { user, signOut } = useAuth();
@@ -21,7 +22,7 @@ export default function Vault() {
         setError('');
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/vault', {
+            const res = await fetch(`${API_BASE}/vault`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -53,7 +54,7 @@ export default function Vault() {
         setError('');
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/vault', {
+            const res = await fetch(`${API_BASE}/vault`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify(newItem),
@@ -89,7 +90,7 @@ export default function Vault() {
         setError('');
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:5000/api/vault/${id}`, {
+            const res = await fetch(`${API_BASE}/vault/${id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` },
             });

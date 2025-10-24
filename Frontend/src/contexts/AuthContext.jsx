@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { deriveKey, generateSalt } from '../utils/cryptoUtils';
+const API_BASE = import.meta.env.VITE_API_URL;
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
@@ -24,7 +25,7 @@ export const AuthProvider = ({ children }) => {
     // Registration
     const signUp = async (email, password) => {
         const salt = generateSalt(); // new salt for this user
-        const res = await axios.post('http://localhost:5000/api/auth/register', {
+        const res = await axios.post(`${API_BASE}/auth/register`, {
             email,
             password,
             kdfSalt: salt,
@@ -42,7 +43,7 @@ export const AuthProvider = ({ children }) => {
     // Login
     const signIn = async (email, password) => {
         try {
-            const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+            const res = await axios.post(`${API_BASE}/auth/login`, { email, password });
             if (res.data.token) {
                 localStorage.setItem('token', res.data.token);
                 localStorage.setItem('email', email);
