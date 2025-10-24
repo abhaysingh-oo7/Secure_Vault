@@ -38,10 +38,4 @@ app.use('/api/auth', authRoutes);
 const vaultRoutes = require('./routes/vault');
 app.use('/api/vault', vaultRoutes);
 
-// -----------------------------------------------------------------
-
-// Start server
-app.listen(PORT, () => {
-    // This console log will still show localhost:5000, but Render manages the public URL
-    console.log(`Server running on port ${PORT}`); 
-});
+module.exports = app;
