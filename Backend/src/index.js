@@ -5,7 +5,7 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const CLIENT_URL = process.env.CLIENT_URL; // frontend URL
+const CLIENT_URL='https://secure-vault-u532.vercel.app'; // frontend URL
 
 // Connect to MongoDB
 connectDB();
@@ -17,7 +17,7 @@ const corsOptions = {
 };
 
 // Middleware
-app.use(cors(corsOptions)); 
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Test route
