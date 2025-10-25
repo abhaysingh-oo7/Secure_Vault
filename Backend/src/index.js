@@ -12,8 +12,8 @@ connectDB();
 
 // CORS Configuration
 const corsOptions = {
-    origin: CLIENT_URL || "http://localhost:5173",
-    credentials: true,
+    origin: ["secure-vault-7urg.vercel.app","http://localhost:5173",],
+    credentials: true,
 };
 
 // Middleware
