@@ -5,6 +5,7 @@ export async function login(email, password) {
     const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', 
         body: JSON.stringify({ email, password }),
     });
     return res.json();
@@ -14,6 +15,7 @@ export async function register(email, password, kdfSalt) {
     const res = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', 
         body: JSON.stringify({ email, password, kdfSalt }),
     });
     return res.json();
